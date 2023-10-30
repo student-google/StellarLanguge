@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Stellar_Language.api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<DataContext>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
+
+var dbContext = app.Services.GetRequiredService<IDbContextFactory<DataContext>>();
+DataInitializer.Initialize(dbContext.CreateDbContext());
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
